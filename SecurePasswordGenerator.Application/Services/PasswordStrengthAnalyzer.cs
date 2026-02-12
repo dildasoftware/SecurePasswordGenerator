@@ -143,7 +143,7 @@ public class PasswordStrengthAnalyzer : IPasswordAnalyzer
         {
             < 28 => PasswordStrengthLevel.VeryWeak,    // Saniyeler
             < 36 => PasswordStrengthLevel.Weak,        // Dakikalar-Saatler
-            < 60 => PasswordStrengthLevel.Moderate,    // Günler-Aylar
+            < 60 => PasswordStrengthLevel.Medium,    // Günler-Aylar
             < 128 => PasswordStrengthLevel.Strong,     // Yıllar-Yüzyıllar
             _ => PasswordStrengthLevel.VeryStrong      // Evren yaşından uzun
         };
@@ -233,7 +233,7 @@ public class PasswordStrengthAnalyzer : IPasswordAnalyzer
         {
             strength.Feedback.Add("Harika! Çok güçlü bir şifre.");
         }
-        else if (strength.Level == PasswordStrengthLevel.Moderate)
+        else if (strength.Level == PasswordStrengthLevel.Medium)
         {
             strength.Feedback.Add("İyi bir şifre, ama daha da güçlendirilebilir.");
         }

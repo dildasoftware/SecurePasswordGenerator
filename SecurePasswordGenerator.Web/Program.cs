@@ -4,6 +4,7 @@ using SecurePasswordGenerator.Web;
 using SecurePasswordGenerator.Domain.Interfaces;
 using SecurePasswordGenerator.Application.Services;
 using SecurePasswordGenerator.Infrastructure.Services;
+using SecurePasswordGenerator.Web.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -26,6 +27,9 @@ builder.Services.AddScoped<IImportExportService, ImportExportService>();
 builder.Services.AddScoped<IPasswordGenerator, PasswordGeneratorService>();
 builder.Services.AddScoped<IPasswordAnalyzer, PasswordStrengthAnalyzer>();
 builder.Services.AddScoped<IPassphraseGenerator, PassphraseGeneratorService>();
+
+// Web Layer (UI Services)
+builder.Services.AddScoped<ILocalizationService, ClientLocalizationService>();
 
 // Logging (Konsol loglama)
 builder.Logging.SetMinimumLevel(LogLevel.Information);

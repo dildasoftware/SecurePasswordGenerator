@@ -73,9 +73,10 @@ public class PasswordStrength
     {
         return Level switch
         {
+            PasswordStrengthLevel.TooShort => "#7f1d1d", // Dark Red
             PasswordStrengthLevel.VeryWeak => "#ef4444", // Red
-            PasswordStrengthLevel.Weak => "#f59e0b", // Orange
-            PasswordStrengthLevel.Moderate => "#eab308", // Yellow
+            PasswordStrengthLevel.Weak => "#f97316", // Orange
+            PasswordStrengthLevel.Medium => "#eab308", // Yellow
             PasswordStrengthLevel.Strong => "#22c55e", // Green
             PasswordStrengthLevel.VeryStrong => "#10b981", // Emerald
             _ => "#6b7280" // Gray
@@ -89,9 +90,10 @@ public class PasswordStrength
     {
         return Level switch
         {
+            PasswordStrengthLevel.TooShort => "Too Short",
             PasswordStrengthLevel.VeryWeak => "Very Weak",
             PasswordStrengthLevel.Weak => "Weak",
-            PasswordStrengthLevel.Moderate => "Moderate",
+            PasswordStrengthLevel.Medium => "Medium",
             PasswordStrengthLevel.Strong => "Strong",
             PasswordStrengthLevel.VeryStrong => "Very Strong",
             _ => "Unknown"

@@ -96,9 +96,10 @@ public class PasswordHistory
     {
         return StrengthLevel switch
         {
+            PasswordStrengthLevel.TooShort => 10,
             PasswordStrengthLevel.VeryWeak => 20,
             PasswordStrengthLevel.Weak => 40,
-            PasswordStrengthLevel.Moderate => 60,
+            PasswordStrengthLevel.Medium => 60,
             PasswordStrengthLevel.Strong => 80,
             PasswordStrengthLevel.VeryStrong => 100,
             _ => 0

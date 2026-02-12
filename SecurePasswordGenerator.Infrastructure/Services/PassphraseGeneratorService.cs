@@ -92,7 +92,7 @@ public class PassphraseGeneratorService : IPassphraseGenerator
         PasswordStrengthLevel level;
         if (score < 40) level = PasswordStrengthLevel.VeryWeak;
         else if (score < 60) level = PasswordStrengthLevel.Weak;
-        else if (score < 80) level = PasswordStrengthLevel.Moderate;
+        else if (score < 80) level = PasswordStrengthLevel.Medium;
         else if (score < 100) level = PasswordStrengthLevel.Strong;
         else level = PasswordStrengthLevel.VeryStrong;
 

@@ -1,16 +1,186 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+@inject ILocalizationService Loc
+
+@* UZAY ARKA PLANI - Direkt HTML *@
+<div class="space-background">
+    @* Yıldız Katmanları *@
+    <div class="stars layer-1"></div>
+    <div class="stars layer-2"></div>
+    <div class="stars layer-3"></div>
+    
+    @* Nebula Efektleri *@
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+    <div class="nebula nebula-4"></div>
+    
+    @* Gezegenler *@
+    <div class="planet planet-1">
+        <div class="planet-ring"></div>
     </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+    <div class="planet planet-2"></div>
+    <div class="planet planet-3"></div>
+    
+    @* Kayan Yıldızlar *@
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    
+    @* Astronot SVG *@
+    <div class="astronaut">
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="astronautGlow">
+                    <stop offset="0%" stop-color="#a855f7" stop-opacity="0.8"/>
+                    <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                </radialGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+            <circle cx="60" cy="60" r="50" fill="url(#astronautGlow)" opacity="0.4"/>
+            <circle cx="60" cy="40" r="22" fill="#e0e7ff" opacity="0.95" filter="url(#glow)"/>
+            <circle cx="60" cy="40" r="24" fill="none" stroke="#a855f7" stroke-width="2.5" opacity="0.6"/>
+            <ellipse cx="60" cy="40" rx="15" ry="12" fill="#3b82f6" opacity="0.4"/>
+            <ellipse cx="60" cy="38" rx="13" ry="10" fill="#60a5fa" opacity="0.2"/>
+            <circle cx="54" cy="38" r="2.5" fill="#1e3a8a"/>
+            <circle cx="66" cy="38" r="2.5" fill="#1e3a8a"/>
+            <circle cx="55" cy="37" r="1" fill="#ffffff"/>
+            <circle cx="67" cy="37" r="1" fill="#ffffff"/>
+            <path d="M 52 43 Q 60 47 68 43" stroke="#1e3a8a" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <rect x="42" y="58" width="36" height="42" rx="6" fill="#e0e7ff" opacity="0.95" filter="url(#glow)"/>
+            <rect x="42" y="58" width="36" height="42" rx="6" fill="none" stroke="#a855f7" stroke-width="2" opacity="0.5"/>
+            <rect x="50" y="68" width="20" height="16" rx="3" fill="#ec4899" opacity="0.7"/>
+            <circle cx="60" cy="76" r="4" fill="#fbbf24" opacity="0.9"/>
+            <circle cx="60" cy="76" r="2" fill="#ffffff" opacity="0.8"/>
+            <circle cx="54" cy="90" r="2" fill="#3b82f6" opacity="0.8"/>
+            <circle cx="60" cy="90" r="2" fill="#10b981" opacity="0.8"/>
+            <circle cx="66" cy="90" r="2" fill="#ef4444" opacity="0.8"/>
+            <rect x="28" y="62" width="14" height="26" rx="7" fill="#e0e7ff" opacity="0.9"/>
+            <rect x="78" y="62" width="14" height="26" rx="7" fill="#e0e7ff" opacity="0.9"/>
+            <circle cx="35" cy="88" r="6" fill="#d4d4d8" opacity="0.9"/>
+            <circle cx="85" cy="88" r="6" fill="#d4d4d8" opacity="0.9"/>
+            <rect x="46" y="98" width="12" height="18" rx="4" fill="#e0e7ff" opacity="0.9"/>
+            <rect x="62" y="98" width="12" height="18" rx="4" fill="#e0e7ff" opacity="0.9"/>
+            <rect x="46" y="114" width="12" height="6" rx="3" fill="#52525b" opacity="0.9"/>
+            <rect x="62" y="114" width="12" height="6" rx="3" fill="#52525b" opacity="0.9"/>
+            <line x1="60" y1="18" x2="60" y2="12" stroke="#a855f7" stroke-width="2"/>
+            <circle cx="60" cy="10" r="3" fill="#ec4899" opacity="0.9"/>
+            <circle cx="60" cy="10" r="5" fill="none" stroke="#ec4899" stroke-width="1" opacity="0.5"/>
+        </svg>
+    </div>
 </div>
+
+@* Navigation Menu *@
+<nav style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(15,10,30,0.8); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(168,85,247,0.2); padding: 1rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; gap: 2rem; align-items: center;">
+            <a href="/" style="text-decoration: none; font-size: 1.25rem; font-weight: 700; color: #fff;">
+                🔐 <span class="text-gradient">@Loc["AppName"]</span>
+            </a>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="/" class="nav-link" style="text-decoration: none; color: rgba(255,255,255,0.7); padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s;">
+                    @Loc["Nav.Generate"]
+                </a>
+                <a href="/history" class="nav-link" style="text-decoration: none; color: rgba(255,255,255,0.7); padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s;">
+                    @Loc["Nav.History"]
+                </a>
+                <a href="/settings" class="nav-link" style="text-decoration: none; color: rgba(255,255,255,0.7); padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s;">
+                    @Loc["Nav.Settings"]
+                </a>
+
+                @* Language Switcher *@
+                <button class="nav-link" @onclick="ToggleLanguage" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 1.25rem; padding: 0.25rem 0.5rem; cursor: pointer; margin-left: 0.5rem;">
+                    @((Loc.CurrentCulture == "tr") ? "🇬🇧" : "🇹🇷")
+                </button>
+                
+                @if (isInstallable)
+                {
+                    <button class="nav-link btn-secondary" @onclick="InstallPwa" style="border: 1px solid rgba(16, 185, 129, 0.5) !important; color: #10b981 !important; margin-left: 0.5rem; cursor: pointer; background: rgba(16, 185, 129, 0.1) !important;">
+                        @Loc["Nav.Install"]
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</nav>
+
+@* Ana İçerik *@
+<div class="main-container" style="margin-top: 80px;">
+    <div class="container">
+        @Body
+    </div>
+</div>
+
+@* Footer *@
+<footer style="position: fixed; bottom: 0; left: 0; right: 0; padding: 1rem; text-align: center; color: rgba(255,255,255,0.5); font-size: 0.875rem; z-index: 10;">
+    <p style="margin: 0;">
+        🔐 Secure Password Generator | 
+        <span class="text-gradient">Kriptografik Güvenli</span> | 
+        Made with 💜 by Antigravity
+    </p>
+</footer>
+
+@code {
+    private bool isInstallable = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Loc.InitializeAsync();
+        Loc.OnChange += StateHasChanged;
+    }
+    
+    public void Dispose()
+    {
+        Loc.OnChange -= StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    var status = await JSRuntime.InvokeAsync<bool>("isPwaInstallable");
+                    if (status)
+                    {
+                        isInstallable = true;
+                        StateHasChanged();
+                        break;
+                    }
+                }
+                catch { }
+                await Task.Delay(1500);
+            }
+        }
+    }
+
+    private async Task InstallPwa()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("installPwa");
+            isInstallable = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private async Task ToggleLanguage()
+    {
+        var newLang = Loc.CurrentCulture == "tr" ? "en" : "tr";
+        await Loc.SetLanguageAsync(newLang);
+    }
+}
