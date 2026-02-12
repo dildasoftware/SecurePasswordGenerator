@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Password Generator</title>
+    <base href="/" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* SPACE BACKGROUND */
+        .space-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at top, #1e1240 0%, #0a0612 50%, #000000 100%);
+            overflow: hidden;
+        }
+
+        /* STARS */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .stars.layer-1 {
+            background-image:
+                radial-gradient(2px 2px at 10% 20%, white, transparent),
+                radial-gradient(2px 2px at 30% 40%, white, transparent),
+                radial-gradient(1px 1px at 50% 10%, white, transparent),
+                radial-gradient(1px 1px at 70% 60%, white, transparent),
+                radial-gradient(2px 2px at 85% 30%, white, transparent),
+                radial-gradient(1px 1px at 15% 70%, white, transparent),
+                radial-gradient(1px 1px at 40% 85%, white, transparent),
+                radial-gradient(2px 2px at 60% 25%, white, transparent),
+                radial-gradient(1px 1px at 90% 50%, white, transparent),
+                radial-gradient(1px 1px at 25% 90%, white, transparent);
+            background-size: 100% 100%;
+            animation: twinkle1 4s ease-in-out infinite;
+        }
+
+        .stars.layer-2 {
+            background-image:
+                radial-gradient(3px 3px at 20% 15%, rgba(168, 85, 247, 0.9), transparent),
+                radial-gradient(2px 2px at 45% 35%, rgba(236, 72, 153, 0.9), transparent),
+                radial-gradient(2px 2px at 65% 55%, rgba(59, 130, 246, 0.9), transparent),
+                radial-gradient(3px 3px at 80% 75%, rgba(168, 85, 247, 0.7), transparent),
+                radial-gradient(2px 2px at 35% 65%, rgba(236, 72, 153, 0.8), transparent);
+            background-size: 100% 100%;
+            animation: twinkle2 5s ease-in-out infinite 1s;
+        }
+
+        @keyframes twinkle1 {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        @keyframes twinkle2 {
+
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* NEBULA */
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            mix-blend-mode: screen;
+            animation: nebula-float 25s ease-in-out infinite;
+        }
+
+        .nebula-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #6b2fb5 0%, transparent 70%);
+            top: -10%;
+            left: -10%;
+            opacity: 0.3;
+        }
+
+        .nebula-2 {
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, #d946ef 0%, #8b5cf6 40%, transparent 70%);
+            top: 30%;
+            right: -15%;
+            opacity: 0.25;
+            animation-delay: 8s;
+        }
+
+        .nebula-3 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #3b82f6 0%, #06b6d4 30%, transparent 70%);
+            bottom: -10%;
+            left: 20%;
+            opacity: 0.22;
+            animation-delay: 16s;
+        }
+
+        @keyframes nebula-float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+
+            50% {
+                transform: translate(30px, 30px) scale(0.9);
+            }
+
+            75% {
+                transform: translate(-40px, 20px) scale(1.05);
+            }
+        }
+
+        /* PLANETS */
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            animation: planet-orbit 40s linear infinite;
+        }
+
+        .planet-1 {
+            width: 150px;
+            height: 150px;
+            top: 10%;
+            right: 10%;
+            background: radial-gradient(circle at 35% 35%, #a78bfa, #7c3aed 40%, #5b21b6 70%, #1e1240);
+            box-shadow:
+                inset -25px -25px 60px rgba(0, 0, 0, 0.9),
+                0 0 80px rgba(168, 85, 247, 0.6),
+                0 0 120px rgba(168, 85, 247, 0.3);
+            animation-duration: 35s;
+        }
+
+        .planet-2 {
+            width: 100px;
+            height: 100px;
+            bottom: 15%;
+            left: 8%;
+            background: radial-gradient(circle at 30% 30%, #60a5fa, #3b82f6 40%, #1e40af 70%, #0a0e27);
+            box-shadow:
+                inset -15px -15px 40px rgba(0, 0, 0, 0.9),
+                0 0 60px rgba(59, 130, 246, 0.5),
+                0 0 100px rgba(59, 130, 246, 0.2);
+            animation-duration: 45s;
+        }
+
+        @keyframes planet-orbit {
+            from {
+                transform: rotate(0deg) translateY(10px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg) translateY(10px) rotate(-360deg);
+            }
+        }
+
+        /* SHOOTING STARS */
+        .shooting-star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.9);
+            animation: shoot 4s linear infinite;
+        }
+
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 2px;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent);
+            transform: translateX(-150px) translateY(-1px);
+            box-shadow: 0 0 8px rgba(168, 85, 247, 0.8);
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(400px, 400px);
+                opacity: 0;
+            }
+        }
+
+        .shooting-star:nth-child(7) {
+            top: 8%;
+            left: 15%;
+            animation-delay: 0s;
+            animation-duration: 3s;
+        }
+
+        .shooting-star:nth-child(8) {
+            top: 25%;
+            left: 55%;
+            animation-delay: 2.5s;
+            animation-duration: 3.5s;
+        }
+
+        .shooting-star:nth-child(9) {
+            top: 45%;
+            left: 5%;
+            animation-delay: 5s;
+            animation-duration: 4s;
+        }
+
+        /* ASTRONAUT */
+        .astronaut {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            top: 18%;
+            right: 8%;
+            animation: float-astro 8s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.6));
+            z-index: 5;
+        }
+
+        @keyframes float-astro {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateY(-30px) rotate(5deg);
+            }
+        }
+
+        /* GLASS CARD */
+        .glass-card {
+            background: rgba(15, 10, 30, 0.5) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(168, 85, 247, 0.2) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.15) !important;
+            padding: 3rem !important;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 0.875rem 2rem !important;
+            border: none !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.3s !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;
+            color: white !important;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4) !important;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 30px rgba(168, 85, 247, 0.6) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        .btn-secondary {
+            background: rgba(168, 85, 247, 0.1) !important;
+            color: white !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important;
+        }
+
+        /* INPUT */
+        .input {
+            width: 100% !important;
+            padding: 0.875rem 1.25rem !important;
+            background: rgba(15, 10, 30, 0.6) !important;
+            border: 1px solid rgba(168, 85, 247, 0.2) !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .input:focus {
+            outline: none !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15) !important;
+        }
+
+        /* TEXT */
+        .text-gradient {
+            background: linear-gradient(135deg, #a855f7, #ec4899, #3b82f6) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+
+        .glow-text {
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.4) !important;
+        }
+
+        /* LAYOUT */
+        #app {
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-container {
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* LOADING */
+        .loading-progress {
+            position: relative;
+            display: block;
+            width: 8rem;
+            height: 8rem;
+            margin: 20vh auto 1rem;
+        }
+
+        .loading-progress circle {
+            fill: none;
+            stroke: #a855f7;
+            stroke-width: 0.6rem;
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 0 10px #a855f7);
+        }
+
+        .loading-progress circle:last-child {
+            stroke: #ec4899;
+            stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+            transition: stroke-dasharray 0.05s ease-in-out;
+        }
+
+        /* NAV LINKS */
+        .nav-link:hover {
+            background: rgba(168, 85, 247, 0.2) !important;
+            color: #fff !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SPACE BACKGROUND - ALWAYS VISIBLE -->
+    <div class="space-background">
+        <div class="stars layer-1"></div>
+        <div class="stars layer-2"></div>
+
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+        <div class="nebula nebula-3"></div>
+
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+
+        <div class="astronaut">
+            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="astronautGlow">
+                        <stop offset="0%" stop-color="#a855f7" stop-opacity="0.8" />
+                        <stop offset="100%" stop-color="#a855f7" stop-opacity="0" />
+                    </radialGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                        <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
+                <circle cx="60" cy="60" r="50" fill="url(#astronautGlow)" opacity="0.4" />
+                <circle cx="60" cy="40" r="22" fill="#e0e7ff" opacity="0.95" filter="url(#glow)" />
+                <circle cx="60" cy="40" r="24" fill="none" stroke="#a855f7" stroke-width="2.5" opacity="0.6" />
+                <ellipse cx="60" cy="40" rx="15" ry="12" fill="#3b82f6" opacity="0.4" />
+                <ellipse cx="60" cy="38" rx="13" ry="10" fill="#60a5fa" opacity="0.2" />
+                <circle cx="54" cy="38" r="2.5" fill="#1e3a8a" />
+                <circle cx="66" cy="38" r="2.5" fill="#1e3a8a" />
+                <circle cx="55" cy="37" r="1" fill="#ffffff" />
+                <circle cx="67" cy="37" r="1" fill="#ffffff" />
+                <path d="M 52 43 Q 60 47 68 43" stroke="#1e3a8a" stroke-width="2" fill="none" stroke-linecap="round" />
+                <rect x="42" y="58" width="36" height="42" rx="6" fill="#e0e7ff" opacity="0.95" filter="url(#glow)" />
+                <rect x="42" y="58" width="36" height="42" rx="6" fill="none" stroke="#a855f7" stroke-width="2"
+                    opacity="0.5" />
+                <rect x="50" y="68" width="20" height="16" rx="3" fill="#ec4899" opacity="0.7" />
+                <circle cx="60" cy="76" r="4" fill="#fbbf24" opacity="0.9" />
+                <circle cx="60" cy="76" r="2" fill="#ffffff" opacity="0.8" />
+                <circle cx="54" cy="90" r="2" fill="#3b82f6" opacity="0.8" />
+                <circle cx="60" cy="90" r="2" fill="#10b981" opacity="0.8" />
+                <circle cx="66" cy="90" r="2" fill="#ef4444" opacity="0.8" />
+                <rect x="28" y="62" width="14" height="26" rx="7" fill="#e0e7ff" opacity="0.9" />
+                <rect x="78" y="62" width="14" height="26" rx="7" fill="#e0e7ff" opacity="0.9" />
+                <circle cx="35" cy="88" r="6" fill="#d4d4d8" opacity="0.9" />
+                <circle cx="85" cy="88" r="6" fill="#d4d4d8" opacity="0.9" />
+                <rect x="46" y="98" width="12" height="18" rx="4" fill="#e0e7ff" opacity="0.9" />
+                <rect x="62" y="98" width="12" height="18" rx="4" fill="#e0e7ff" opacity="0.9" />
+                <rect x="46" y="114" width="12" height="6" rx="3" fill="#52525b" opacity="0.9" />
+                <rect x="62" y="114" width="12" height="6" rx="3" fill="#52525b" opacity="0.9" />
+                <line x1="60" y1="18" x2="60" y2="12" stroke="#a855f7" stroke-width="2" />
+                <circle cx="60" cy="10" r="3" fill="#ec4899" opacity="0.9" />
+                <circle cx="60" cy="10" r="5" fill="none" stroke="#ec4899" stroke-width="1" opacity="0.5" />
+            </svg>
+        </div>
+    </div>
+
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+    </div>
+
+    <div id="blazor-error-ui">
+        An error occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="js/indexeddb.js"></script>
+    <script src="js/pwa.js"></script>
+    <script src="js/clipboard.js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script>navigator.serviceWorker.register('service-worker.js');</script>
+</body>
+
+</html>

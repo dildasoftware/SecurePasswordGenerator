@@ -1,0 +1,393 @@
+﻿@page "/"
+@using SecurePasswordGenerator.Domain.Interfaces
+@using SecurePasswordGenerator.Domain.Models
+@inject IPasswordGenerator PasswordGenerator
+@inject IPassphraseGenerator PassphraseGenService
+@inject IPasswordAnalyzer PasswordAnalyzer
+@inject IClipboardService ClipboardService
+@inject IStorageService StorageService
+
+<PageTitle>Secure Password Generator - Güvenli Şifre Üretici</PageTitle>
+
+<div class="fade-in" style="max-width: 900px; margin: 0 auto; padding: 2rem 1rem;">
+    
+    @* Hero Section *@
+    <div class="text-center" style="margin-bottom: 3rem;">
+        <h1 class="glow-text" style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.02em;">
+            <span class="text-gradient">🔐 Secure Password Generator</span>
+        </h1>
+        <p style="font-size: 1.25rem; color: rgba(255,255,255,0.7); font-weight: 400;">
+            Kriptografik güvenli, profesyonel şifre üretici
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+            <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 999px; font-size: 0.875rem;">
+                ✨ Kriptografik Güvenli
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(236, 72, 153, 0.15); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 999px; font-size: 0.875rem;">
+                🚀 Hızlı & Güçlü
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 999px; font-size: 0.875rem;">
+                🔒 100% Güvenli
+            </span>
+        </div>
+    </div>
+
+    @* Mode Selector *@
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="background: rgba(15, 10, 30, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 999px; padding: 0.375rem; display: inline-flex; backdrop-filter: blur(10px);">
+            <button style="min-width: 150px; padding: 0.5rem 1rem; border-radius: 999px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9375rem; transition: all 0.3s; background: @(currentMode == GenerationMode.Password ? "linear-gradient(135deg, #a855f7, #ec4899)" : "transparent"); color: @(currentMode == GenerationMode.Password ? "#fff" : "rgba(255,255,255,0.6)"); box-shadow: @(currentMode == GenerationMode.Password ? "0 4px 12px rgba(168, 85, 247, 0.4)" : "none");"
+                    @onclick="() => SwitchMode(GenerationMode.Password)">
+                🔑 Standart Şifre
+            </button>
+            <button style="min-width: 150px; padding: 0.5rem 1rem; border-radius: 999px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9375rem; transition: all 0.3s; background: @(currentMode == GenerationMode.Passphrase ? "linear-gradient(135deg, #ec4899, #f43f5e)" : "transparent"); color: @(currentMode == GenerationMode.Passphrase ? "#fff" : "rgba(255,255,255,0.6)"); box-shadow: @(currentMode == GenerationMode.Passphrase ? "0 4px 12px rgba(236, 72, 153, 0.4)" : "none");"
+                    @onclick="() => SwitchMode(GenerationMode.Passphrase)">
+                🗣️ Passphrase
+            </button>
+        </div>
+    </div>
+
+    @* Main Card *@
+    <div class="glass-card">
+        
+        @* Password Display Section *@
+        <div style="margin-bottom: 2.5rem;">
+            <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem; display: block; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.05em;">
+                Üretilen Şifre
+            </label>
+            <div style="display: flex; gap: 0.75rem; align-items: stretch;">
+                <div style="flex: 1; position: relative;">
+                    <input 
+                        type="@(showPassword ? "text" : "password")" 
+                        class="input" 
+                        value="@generatedPassword"
+                        readonly
+                        style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 600; padding-right: 3.5rem; letter-spacing: 0.05em;"
+                    />
+                    <button 
+                        @onclick="TogglePasswordVisibility" 
+                        title="Göster/Gizle"
+                        style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.5rem; opacity: 0.6; transition: opacity 0.2s;"
+                        onmouseover="this.style.opacity='1'"
+                        onmouseout="this.style.opacity='0.6'">
+                        @(showPassword ? "👁️" : "👁️‍🗨️")
+                    </button>
+                </div>
+                <button class="btn btn-primary" @onclick="CopyPassword" style="min-width: 140px;">
+                    📋 Kopyala
+                </button>
+            </div>
+        </div>
+
+        @* Strength Meter *@
+        @if (!string.IsNullOrEmpty(generatedPassword) && passwordStrength != null)
+        {
+            <div style="margin-bottom: 2.5rem; padding: 1.5rem; background: rgba(168, 85, 247, 0.05); border: 1px solid rgba(168, 85, 247, 0.15); border-radius: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span style="font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Şifre Gücü</span>
+                    <span style="font-weight: 700; font-size: 1.125rem; color: @passwordStrength.GetColorCode(); text-shadow: 0 0 10px @passwordStrength.GetColorCode();">
+                        @passwordStrength.GetStrengthText()
+                    </span>
+                </div>
+                
+                @* Strength Bar *@
+                <div style="height: 12px; background: rgba(0,0,0,0.3); border-radius: 999px; overflow: hidden; margin-bottom: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                    <div style="height: 100%; background: linear-gradient(90deg, @passwordStrength.GetColorCode(), @passwordStrength.GetColorCode() 80%, rgba(255,255,255,0.3)); width: @(passwordStrength.Score)%; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px @passwordStrength.GetColorCode(); border-radius: 999px;"></div>
+                </div>
+                
+                @* Stats Grid *@
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    <div style="text-align: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Entropi</div>
+                        <div style="font-size: 1.25rem; font-weight: 700; color: #a855f7;">@passwordStrength.Entropy.ToString("F1") <span style="font-size: 0.875rem; font-weight: 400;">bit</span></div>
+                    </div>
+                    <div style="text-align: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Skor</div>
+                        <div style="font-size: 1.25rem; font-weight: 700; color: #ec4899;">@passwordStrength.Score<span style="font-size: 0.875rem; font-weight: 400;">/100</span></div>
+                    </div>
+                    <div style="text-align: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Kırılma Süresi</div>
+                        <div style="font-size: 1rem; font-weight: 700; color: #3b82f6;">@passwordStrength.TimeToCrack</div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* Settings Section *@
+        <div style="margin-bottom: 2.5rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem;">⚙️</span> Ayarlar
+            </h3>
+            
+            @if (currentMode == GenerationMode.Password)
+            {
+                <div class="fade-in">
+                    @* Length Slider *@
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <label style="font-weight: 600; font-size: 0.9375rem;">Şifre Uzunluğu</label>
+                            <span style="font-size: 1.5rem; font-weight: 700; color: #a855f7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);">@options.Length</span>
+                        </div>
+                        <input type="range" min="4" max="128" @bind="options.Length" @bind:event="oninput" style="width: 100%; height: 8px; border-radius: 999px; background: linear-gradient(to right, #a855f7 0%, #ec4899 50%, #3b82f6 100%); outline: none; -webkit-appearance: none; cursor: pointer;" />
+                    </div>
+
+                    @* Character Types *@
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                            <input type="checkbox" @bind="options.IncludeUppercase" style="accent-color: #a855f7;" /> Büyük Harfler (A-Z)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(236, 72, 153, 0.08); border: 1px solid rgba(236, 72, 153, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                            <input type="checkbox" @bind="options.IncludeLowercase" style="accent-color: #ec4899;" /> Küçük Harfler (a-z)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                            <input type="checkbox" @bind="options.IncludeNumbers" style="accent-color: #3b82f6;" /> Rakamlar (0-9)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                            <input type="checkbox" @bind="options.IncludeSymbols" style="accent-color: #f97316;" /> Semboller (!@@#$)
+                        </label>
+                    </div>
+
+                    @* Exclude Similar *@
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                            <input type="checkbox" @bind="options.ExcludeSimilarCharacters" style="accent-color: #a855f7;" />
+                            <span style="font-size: 0.9375rem; color: rgba(255,255,255,0.9);">
+                                Benzer karakterleri hariç tut <span style="font-family: var(--font-mono); color: rgba(255,255,255,0.5); font-size: 0.875rem;">(i, l, 1, L, o, 0, O)</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="fade-in">
+                    @* Word Count *@
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <label style="font-weight: 600; font-size: 0.9375rem;">Kelime Sayısı</label>
+                            <span style="font-size: 1.5rem; font-weight: 700; color: #ec4899; text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);">@passphraseOptions.WordCount</span>
+                        </div>
+                        <input type="range" min="3" max="10" @bind="passphraseOptions.WordCount" @bind:event="oninput" style="width: 100%; height: 8px; border-radius: 999px; background: linear-gradient(to right, #ec4899 0%, #f43f5e 100%); outline: none; -webkit-appearance: none; cursor: pointer;" />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                         <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem;">Ayırıcı</label>
+                            <select class="input" @bind="passphraseOptions.Separator" style="padding: 0.75rem;">
+                                <option value="-">- (Tire)</option>
+                                <option value="_">_ (Alt Tire)</option>
+                                <option value=".">. (Nokta)</option>
+                                <option value=" "> (Boşluk)</option>
+                            </select>
+                         </div>
+                         <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem;">Dil</label>
+                            <select class="input" @onchange="OnLanguageChanged" style="padding: 0.75rem;">
+                                <option value="English">English 🇬🇧</option>
+                                <option value="Turkish">Türkçe 🇹🇷</option>
+                            </select>
+                         </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; cursor: pointer;">
+                            <input type="checkbox" @bind="passphraseOptions.Capitalize" style="accent-color: #ec4899;" /> Büyük Harfle Başla
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; cursor: pointer;">
+                            <input type="checkbox" @bind="passphraseOptions.IncludeNumber" style="accent-color: #ec4899;" /> Sayı Ekle
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; cursor: pointer;">
+                            <input type="checkbox" @bind="passphraseOptions.IncludeSymbol" style="accent-color: #ec4899;" /> Sembol Ekle
+                        </label>
+                    </div>
+                </div>
+            }
+
+            @* Common Extra Options *@
+            <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: rgba(255,255,255,0.7);">Etiket (Opsiyonel)</label>
+                        <input type="text" class="input" placeholder="Örn: Gmail, Facebook" @bind="passwordLabel" />
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: rgba(255,255,255,0.7);">Tagler (Virgülle ayırın)</label>
+                        <input type="text" class="input" placeholder="Örn: sosyal, iş, kişisel" @bind="passwordTags" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Action Buttons *@
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" @onclick="GenerateNewPassword" style="flex: 1; min-width: 200px; font-size: 1rem; padding: 1rem 2rem;">
+                ✨ Yeni Şifre Üret
+            </button>
+            <button class="btn btn-secondary" @onclick="SaveToHistory" style="min-width: 180px;">
+                💾 Geçmişe Kaydet
+            </button>
+        </div>
+
+        @* Message *@
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div style="margin-top: 1.5rem; padding: 1rem 1.25rem; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; color: #10b981; font-weight: 500; display: flex; align-items: center; gap: 0.75rem; animation: fadeIn 0.3s;">
+                <span style="font-size: 1.25rem;">✅</span>
+                <span>@message</span>
+            </div>
+        }
+    </div>
+
+    @* Info Cards *@
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+        <div style="padding: 1.5rem; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 16px; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐</div>
+            <div style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">Kriptografik Güvenli</div>
+            <div style="font-size: 0.875rem; color: rgba(255,255,255,0.6);">RandomNumberGenerator ile tahmin edilemez şifreler</div>
+        </div>
+        <div style="padding: 1.5rem; background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2); border-radius: 16px; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚡</div>
+            <div style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">Hızlı & Güçlü</div>
+            <div style="font-size: 0.875rem; color: rgba(255,255,255,0.6);">Anlık şifre üretimi ve güç analizi</div>
+        </div>
+        <div style="padding: 1.5rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 16px; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛡️</div>
+            <div style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">100% Güvenli</div>
+            <div style="font-size: 0.875rem; color: rgba(255,255,255,0.6);">Verileriniz tarayıcınızda kalır, sunucuya gitmez</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private enum GenerationMode { Password, Passphrase }
+    
+    private GenerationMode currentMode = GenerationMode.Password;
+    private PasswordOptions options = new();
+    private PassphraseOptions passphraseOptions = new();
+    
+    private string generatedPassword = "";
+    private PasswordStrength? passwordStrength;
+    private bool showPassword = true;
+    private string message = "";
+    
+    // New fields
+    private string passwordLabel = "";
+    private string passwordTags = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GenerateNewPassword();
+    }
+    
+    private async Task GenerateNewPassword()
+    {
+        await GeneratePassword();
+        passwordLabel = ""; 
+    }
+
+    private async Task SaveToHistory()
+    {
+        if (string.IsNullOrEmpty(generatedPassword))
+        {
+            message = "Önce bir şifre üretin!";
+            return;
+        }
+
+        try
+        {
+            var history = new PasswordHistory
+            {
+                Password = generatedPassword,
+                Length = generatedPassword.Length,
+                StrengthLevel = passwordStrength?.Level ?? PasswordStrengthLevel.VeryWeak,
+                Entropy = passwordStrength?.Entropy ?? 0,
+                Type = currentMode == GenerationMode.Password ? PasswordType.Standard : PasswordType.Passphrase,
+                CreatedAt = DateTime.UtcNow,
+                Label = passwordLabel,
+                Tags = string.IsNullOrWhiteSpace(passwordTags) 
+                    ? new List<string>() 
+                    : passwordTags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
+            };
+
+            await StorageService.SavePasswordAsync(history);
+            message = "Şifre geçmişe kaydedildi!";
+            
+            await Task.Delay(3000);
+            message = "";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            message = $"Kaydetme hatası: {ex.Message}";
+        }
+    }
+
+    private async Task GeneratePassword()
+    {
+        try
+        {
+            if (currentMode == GenerationMode.Password)
+            {
+                var result = PasswordGenerator.Generate(options);
+                generatedPassword = result.Value;
+                passwordStrength = result.Strength;
+            }
+            else
+            {
+                var result = await PassphraseGenService.GenerateAsync(passphraseOptions);
+                generatedPassword = result.Value;
+                passwordStrength = result.Strength;
+            }
+            message = "";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            message = $"Hata: {ex.Message}";
+        }
+    }
+    
+    private void SwitchMode(GenerationMode mode)
+    {
+        currentMode = mode;
+        _ = GenerateNewPassword();
+    }
+    
+    private void OnLanguageChanged(ChangeEventArgs e)
+    {
+        if (Enum.TryParse<Language>(e.Value?.ToString(), out var lang))
+        {
+            passphraseOptions.Language = lang;
+            _ = GenerateNewPassword();
+        }
+    }
+
+    private async Task CopyPassword()
+    {
+        if (string.IsNullOrEmpty(generatedPassword))
+        {
+            message = "Önce bir şifre üretin!";
+            return;
+        }
+
+        try
+        {
+            await ClipboardService.CopyWithAutoClearAsync(generatedPassword, 30);
+            message = "Şifre kopyalandı! 30 saniye sonra pano temizlenecek.";
+            
+            await Task.Delay(3000);
+            message = "";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            message = $"Kopyalama hatası: {ex.Message}";
+        }
+    }
+
+
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
+}

@@ -1,0 +1,188 @@
+@page "/settings"
+@using SecurePasswordGenerator.Domain.Interfaces
+@using System.IO
+@inject IImportExportService ImportExportService
+@inject IPasswordHistoryService HistoryService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Ayarlar - Secure Password Generator</PageTitle>
+
+<div class="main-container">
+    <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+        
+        <div style="margin-bottom: 2rem;">
+            <h1 class="text-gradient glow-text" style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                ⚙️ Ayarlar
+            </h1>
+            <p style="color: rgba(255,255,255,0.7); font-size: 1.125rem;">
+                Uygulama ayarları ve veri yönetimi
+            </p>
+        </div>
+
+        @* Data Management *@
+        <div style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.5rem; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                💾 Veri Yönetimi
+            </h2>
+            
+            <div style="background: rgba(15,10,30,0.4); border: 1px solid rgba(168,85,247,0.2); border-radius: 16px; padding: 1.5rem;">
+                
+                @* Export *@
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.125rem; color: #a855f7; margin-bottom: 1rem;">📤 Dışa Aktar (Yedekle)</h3>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" @onclick="ExportJson">
+                            📄 JSON İndir
+                        </button>
+                        <button class="btn btn-secondary" @onclick="ExportCsv">
+                            📊 CSV İndir (Excel)
+                        </button>
+                    </div>
+                </div>
+
+                @* Import *@
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.125rem; color: #ec4899; margin-bottom: 1rem;">📥 İçe Aktar (Geri Yükle)</h3>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <InputFile OnChange="ImportData" class="input" style="padding: 0.5rem;" accept=".json" />
+                    </div>
+                    <p style="font-size: 0.875rem; color: rgba(255,255,255,0.5); margin-top: 0.5rem;">
+                        ⚠️ Dikkat: İçe aktarma işlemi mevcut verileri siler ve üzerine yazar. Sadece .json dosyaları desteklenir.
+                    </p>
+                </div>
+
+                @* Clear Data *@
+                <div>
+                    <h3 style="font-size: 1.125rem; color: #ef4444; margin-bottom: 1rem;">🗑️ Verileri Sıfırla</h3>
+                    <button class="btn btn-secondary" 
+                            @onclick="ClearAllData"
+                            style="background: rgba(239,68,68,0.1) !important; border-color: rgba(239,68,68,0.3) !important; color: #ef4444 !important;">
+                        💥 Tüm Verileri Sil
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @* Preferences *@
+        <div style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.5rem; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                🎨 Görünüm & Tercihler
+            </h2>
+            
+            <div style="background: rgba(15,10,30,0.4); border: 1px solid rgba(59,130,246,0.2); border-radius: 16px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-weight: 600;">Tema</div>
+                        <div style="font-size: 0.875rem; color: rgba(255,255,255,0.6);">Karanlık / Aydınlık mod</div>
+                    </div>
+                    <button class="btn btn-secondary" disabled title="Yakında...">
+                        🌗 Otomatik
+                    </button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600;">Dil</div>
+                        <div style="font-size: 0.875rem; color: rgba(255,255,255,0.6);">Uygulama dili</div>
+                    </div>
+                    <select class="input" style="width: auto;" disabled title="Yakında...">
+                        <option>Türkçe</option>
+                        <option>English</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        @* Message *@
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div style="margin-top: 1.5rem; padding: 1rem; background: @(isError ? "rgba(239,68,68,0.1)" : "rgba(16,185,129,0.1)"); border: 1px solid @(isError ? "rgba(239,68,68,0.3)" : "rgba(16,185,129,0.3)"); border-radius: 12px; color: @(isError ? "#ef4444" : "#10b981");">
+                @message
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string message = "";
+    private bool isError = false;
+
+    private async Task ExportJson()
+    {
+        try
+        {
+            var json = await ImportExportService.ExportToJsonAsync();
+            var fileName = $"securepass-backup-{DateTime.Now:yyyyMMdd-HHmmss}.json";
+            await ImportExportService.DownloadFileAsync(fileName, json, "application/json");
+            ShowMessage("Yedek başarıyla indirildi!", false);
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Hata: {ex.Message}", true);
+        }
+    }
+
+    private async Task ExportCsv()
+    {
+        try
+        {
+            var csv = await ImportExportService.ExportToCsvAsync(); // Implement CSV export in service
+            var fileName = $"securepass-export-{DateTime.Now:yyyyMMdd-HHmmss}.csv";
+            await ImportExportService.DownloadFileAsync(fileName, csv, "text/csv"); // Download CSV
+            ShowMessage("CSV dosyası indirildi!", false);
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Hata: {ex.Message}", true);
+        }
+    }
+
+    private async Task ImportData(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            if (file == null) return;
+
+            // Limit file size to 1MB
+            if (file.Size > 1024 * 1024)
+            {
+                ShowMessage("Dosya boyu 1MB'dan büyük olamaz!", true);
+                return;
+            }
+
+            using var stream = file.OpenReadStream(1024 * 1024); // 1MB limit
+            using var reader = new StreamReader(stream);
+            var json = await reader.ReadToEndAsync();
+
+            var count = await ImportExportService.ImportFromJsonAsync(json);
+            ShowMessage($"{count} şifre başarıyla içe aktarıldı!", false);
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"İçe aktarma hatası: {ex.Message}", true);
+        }
+    }
+
+    private async Task ClearAllData()
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "DİKKAT! Tüm verileriniz silinecek ve geri getirilemeyecek. Onaylıyor musunuz?"))
+        {
+            await HistoryService.DeleteAllPasswordsAsync();
+            ShowMessage("Tüm veriler silindi.", false);
+        }
+    }
+
+    private void ShowMessage(string msg, bool error)
+    {
+        message = msg;
+        isError = error;
+        StateHasChanged();
+        
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            message = string.Empty;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+}

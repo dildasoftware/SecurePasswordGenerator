@@ -1,0 +1,625 @@
+/* ===================================
+   SECURE PASSWORD GENERATOR
+   ULTRA PROFESSIONAL SPACE THEME
+   All-in-One CSS File
+   =================================== */
+
+/* ===== CSS VARIABLES ===== */
+:root {
+    /* Deep Space Colors */
+    --space-black: #000000;
+    --space-deep: #0a0612;
+    --space-dark: #0f0a1e;
+    --space-navy: #1a1333;
+    --space-purple-dark: #1e1240;
+
+    /* Nebula Colors */
+    --nebula-purple: #6b2fb5;
+    --nebula-pink: #d946ef;
+    --nebula-blue: #3b82f6;
+    --nebula-cyan: #06b6d4;
+    --nebula-orange: #f97316;
+    --nebula-violet: #8b5cf6;
+
+    /* Accent Colors */
+    --accent-primary: #a855f7;
+    --accent-secondary: #ec4899;
+    --accent-tertiary: #3b82f6;
+    --glow-purple: rgba(168, 85, 247, 0.6);
+    --glow-pink: rgba(236, 72, 153, 0.6);
+    --glow-blue: rgba(59, 130, 246, 0.6);
+
+    /* UI Colors */
+    --glass-bg: rgba(15, 10, 30, 0.4);
+    --glass-border: rgba(168, 85, 247, 0.2);
+    --glass-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.15);
+
+    /* Typography */
+    --font-primary: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* Effects */
+    --blur-sm: 8px;
+    --blur-md: 16px;
+    --blur-lg: 24px;
+    --blur-xl: 40px;
+}
+
+/* ===== GLOBAL RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--space-black);
+}
+
+body {
+    font-family: var(--font-primary);
+    color: #ffffff;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== SPACE BACKGROUND ===== */
+.space-background {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: -1 !important;
+    background: radial-gradient(ellipse at top, #1e1240 0%, #0a0612 50%, #000000 100%) !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Deep Space Gradient Layer */
+.space-background::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(107, 47, 181, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
+    animation: nebula-shift 20s ease-in-out infinite;
+}
+
+@keyframes nebula-shift {
+
+    0%,
+    100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+/* ===== STARS (Visible!) ===== */
+.stars {
+    position: absolute !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none !important;
+}
+
+/* Small White Stars */
+.stars.layer-1 {
+    background-image:
+        radial-gradient(2px 2px at 10% 20%, white, transparent),
+        radial-gradient(2px 2px at 30% 40%, white, transparent),
+        radial-gradient(1px 1px at 50% 10%, white, transparent),
+        radial-gradient(1px 1px at 70% 60%, white, transparent),
+        radial-gradient(2px 2px at 85% 30%, white, transparent),
+        radial-gradient(1px 1px at 15% 70%, white, transparent),
+        radial-gradient(1px 1px at 40% 85%, white, transparent),
+        radial-gradient(2px 2px at 60% 25%, white, transparent),
+        radial-gradient(1px 1px at 90% 50%, white, transparent),
+        radial-gradient(1px 1px at 25% 90%, white, transparent);
+    background-size: 100% 100%;
+    animation: stars-twinkle-1 4s ease-in-out infinite;
+    opacity: 1 !important;
+}
+
+/* Colored Stars */
+.stars.layer-2 {
+    background-image:
+        radial-gradient(3px 3px at 20% 15%, rgba(168, 85, 247, 0.9), transparent),
+        radial-gradient(2px 2px at 45% 35%, rgba(236, 72, 153, 0.9), transparent),
+        radial-gradient(2px 2px at 65% 55%, rgba(59, 130, 246, 0.9), transparent),
+        radial-gradient(3px 3px at 80% 75%, rgba(168, 85, 247, 0.7), transparent),
+        radial-gradient(2px 2px at 35% 65%, rgba(236, 72, 153, 0.8), transparent),
+        radial-gradient(2px 2px at 55% 85%, rgba(59, 130, 246, 0.8), transparent);
+    background-size: 100% 100%;
+    animation: stars-twinkle-2 5s ease-in-out infinite 1s;
+    opacity: 1 !important;
+}
+
+/* Large Glowing Stars */
+.stars.layer-3 {
+    background-image:
+        radial-gradient(circle 4px at 25% 25%, rgba(168, 85, 247, 1), transparent),
+        radial-gradient(circle 5px at 75% 60%, rgba(236, 72, 153, 1), transparent),
+        radial-gradient(circle 4px at 50% 80%, rgba(59, 130, 246, 1), transparent);
+    background-size: 100% 100%;
+    animation: stars-glow 6s ease-in-out infinite 2s;
+    filter: blur(1px);
+    opacity: 1 !important;
+}
+
+@keyframes stars-twinkle-1 {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+@keyframes stars-twinkle-2 {
+
+    0%,
+    100% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+@keyframes stars-glow {
+
+    0%,
+    100% {
+        opacity: 1;
+        filter: blur(1px);
+    }
+
+    50% {
+        opacity: 0.5;
+        filter: blur(2px);
+    }
+}
+
+/* ===== NEBULA CLOUDS (VISIBLE!) ===== */
+.nebula {
+    position: absolute !important;
+    border-radius: 50% !important;
+    filter: blur(80px) !important;
+    mix-blend-mode: screen !important;
+    animation: nebula-float 25s ease-in-out infinite !important;
+    pointer-events: none !important;
+}
+
+.nebula-1 {
+    width: 600px !important;
+    height: 600px !important;
+    background: radial-gradient(circle, #6b2fb5 0%, transparent 70%) !important;
+    top: -10% !important;
+    left: -10% !important;
+    opacity: 0.3 !important;
+    animation-delay: 0s !important;
+}
+
+.nebula-2 {
+    width: 700px !important;
+    height: 700px !important;
+    background: radial-gradient(circle, #d946ef 0%, #8b5cf6 40%, transparent 70%) !important;
+    top: 30% !important;
+    right: -15% !important;
+    opacity: 0.25 !important;
+    animation-delay: 8s !important;
+}
+
+.nebula-3 {
+    width: 500px !important;
+    height: 500px !important;
+    background: radial-gradient(circle, #3b82f6 0%, #06b6d4 30%, transparent 70%) !important;
+    bottom: -10% !important;
+    left: 20% !important;
+    opacity: 0.22 !important;
+    animation-delay: 16s !important;
+}
+
+.nebula-4 {
+    width: 450px !important;
+    height: 450px !important;
+    background: radial-gradient(circle, #f97316 0%, #d946ef 50%, transparent 70%) !important;
+    top: 60% !important;
+    right: 30% !important;
+    opacity: 0.18 !important;
+    animation-delay: 12s !important;
+}
+
+@keyframes nebula-float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+
+    25% {
+        transform: translate(50px, -50px) scale(1.1) rotate(90deg);
+    }
+
+    50% {
+        transform: translate(30px, 30px) scale(0.9) rotate(180deg);
+    }
+
+    75% {
+        transform: translate(-40px, 20px) scale(1.05) rotate(270deg);
+    }
+}
+
+/* ===== 3D PLANETS (VISIBLE!) ===== */
+.planet {
+    position: absolute !important;
+    border-radius: 50% !important;
+    box-shadow:
+        inset -20px -20px 50px rgba(0, 0, 0, 0.8),
+        0 0 60px var(--glow-purple) !important;
+    animation: planet-orbit 40s linear infinite !important;
+    pointer-events: none !important;
+}
+
+.planet-1 {
+    width: 150px !important;
+    height: 150px !important;
+    top: 10% !important;
+    right: 10% !important;
+    background: radial-gradient(circle at 35% 35%, #a78bfa, #7c3aed 40%, #5b21b6 70%, #1e1240) !important;
+    box-shadow:
+        inset -25px -25px 60px rgba(0, 0, 0, 0.9),
+        0 0 80px rgba(168, 85, 247, 0.6),
+        0 0 120px rgba(168, 85, 247, 0.3) !important;
+    animation-duration: 35s !important;
+}
+
+.planet-2 {
+    width: 100px !important;
+    height: 100px !important;
+    bottom: 15% !important;
+    left: 8% !important;
+    background: radial-gradient(circle at 30% 30%, #60a5fa, #3b82f6 40%, #1e40af 70%, #0a0e27) !important;
+    box-shadow:
+        inset -15px -15px 40px rgba(0, 0, 0, 0.9),
+        0 0 60px rgba(59, 130, 246, 0.5),
+        0 0 100px rgba(59, 130, 246, 0.2) !important;
+    animation-duration: 45s !important;
+}
+
+.planet-3 {
+    width: 80px !important;
+    height: 80px !important;
+    top: 55% !important;
+    right: 20% !important;
+    background: radial-gradient(circle at 32% 32%, #f472b6, #ec4899 40%, #be185d 70%, #1e1240) !important;
+    box-shadow:
+        inset -12px -12px 30px rgba(0, 0, 0, 0.9),
+        0 0 50px rgba(236, 72, 153, 0.5),
+        0 0 80px rgba(236, 72, 153, 0.2) !important;
+    animation-duration: 50s !important;
+}
+
+@keyframes planet-orbit {
+    from {
+        transform: rotate(0deg) translateY(10px) rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg) translateY(10px) rotate(-360deg);
+    }
+}
+
+/* Planet Ring */
+.planet-ring {
+    position: absolute !important;
+    border: 4px solid rgba(168, 85, 247, 0.3) !important;
+    border-radius: 50% !important;
+    transform: rotateX(75deg) rotateY(10deg) !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
+}
+
+.planet-1 .planet-ring {
+    width: 220px !important;
+    height: 220px !important;
+    top: 50% !important;
+    left: 50% !important;
+    margin-left: -110px !important;
+    margin-top: -110px !important;
+}
+
+/* ===== SHOOTING STARS (VISIBLE!) ===== */
+.shooting-star {
+    position: absolute !important;
+    width: 3px !important;
+    height: 3px !important;
+    background: white !important;
+    border-radius: 50% !important;
+    box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.9) !important;
+    animation: shoot 4s linear infinite !important;
+    pointer-events: none !important;
+}
+
+.shooting-star::before {
+    content: '' !important;
+    position: absolute !important;
+    width: 150px !important;
+    height: 2px !important;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent) !important;
+    transform: translateX(-150px) translateY(-1px) !important;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.8) !important;
+}
+
+@keyframes shoot {
+    0% {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(400px, 400px);
+        opacity: 0;
+    }
+}
+
+.shooting-star:nth-child(1) {
+    top: 8% !important;
+    left: 15% !important;
+    animation-delay: 0s !important;
+    animation-duration: 3s !important;
+}
+
+.shooting-star:nth-child(2) {
+    top: 25% !important;
+    left: 55% !important;
+    animation-delay: 2.5s !important;
+    animation-duration: 3.5s !important;
+}
+
+.shooting-star:nth-child(3) {
+    top: 45% !important;
+    left: 5% !important;
+    animation-delay: 5s !important;
+    animation-duration: 4s !important;
+}
+
+.shooting-star:nth-child(4) {
+    top: 65% !important;
+    left: 75% !important;
+    animation-delay: 7.5s !important;
+    animation-duration: 3.2s !important;
+}
+
+.shooting-star:nth-child(5) {
+    top: 80% !important;
+    left: 30% !important;
+    animation-delay: 10s !important;
+    animation-duration: 3.8s !important;
+}
+
+/* ===== ASTRONAUT (VISIBLE!) ===== */
+.astronaut {
+    position: absolute !important;
+    width: 120px !important;
+    height: 120px !important;
+    top: 18% !important;
+    right: 8% !important;
+    animation: float-astronaut 8s ease-in-out infinite !important;
+    filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.6)) !important;
+    z-index: 5 !important;
+    pointer-events: none !important;
+}
+
+@keyframes float-astronaut {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateY(-30px) rotate(5deg);
+    }
+}
+
+/* ===== GLASSMORPHISM CARDS ===== */
+.glass-card {
+    background: rgba(15, 10, 30, 0.5) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(168, 85, 247, 0.2) !important;
+    border-radius: 24px !important;
+    box-shadow:
+        0 8px 32px 0 rgba(168, 85, 247, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    padding: 3rem !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+    transition: left 0.6s;
+}
+
+.glass-card:hover::before {
+    left: 100%;
+}
+
+.glass-card:hover {
+    background: rgba(15, 10, 30, 0.6) !important;
+    border-color: rgba(168, 85, 247, 0.4) !important;
+    box-shadow:
+        0 12px 48px 0 rgba(168, 85, 247, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    transform: translateY(-4px) !important;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    padding: 0.875rem 2rem !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-family: var(--font-primary) !important;
+    font-weight: 600 !important;
+    font-size: 0.9375rem !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    letter-spacing: 0.025em !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;
+    color: white !important;
+    box-shadow:
+        0 4px 20px rgba(168, 85, 247, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.btn-primary:hover {
+    box-shadow:
+        0 6px 30px rgba(168, 85, 247, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+.btn-secondary {
+    background: rgba(168, 85, 247, 0.1) !important;
+    color: white !important;
+    border: 1px solid rgba(168, 85, 247, 0.3) !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+.btn-secondary:hover {
+    background: rgba(168, 85, 247, 0.2) !important;
+    border-color: rgba(168, 85, 247, 0.5) !important;
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3) !important;
+}
+
+/* ===== INPUTS ===== */
+.input {
+    width: 100% !important;
+    padding: 0.875rem 1.25rem !important;
+    background: rgba(15, 10, 30, 0.6) !important;
+    border: 1px solid rgba(168, 85, 247, 0.2) !important;
+    border-radius: 12px !important;
+    color: #ffffff !important;
+    font-family: var(--font-primary) !important;
+    font-size: 0.9375rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+.input:focus {
+    outline: none !important;
+    background: rgba(15, 10, 30, 0.8) !important;
+    border-color: #a855f7 !important;
+    box-shadow:
+        0 0 0 4px rgba(168, 85, 247, 0.15),
+        0 4px 20px rgba(168, 85, 247, 0.2) !important;
+}
+
+/* ===== UTILITIES ===== */
+.text-gradient {
+    background: linear-gradient(135deg, #a855f7, #ec4899, #3b82f6) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+.glow-text {
+    text-shadow:
+        0 0 20px rgba(168, 85, 247, 0.6),
+        0 0 40px rgba(168, 85, 247, 0.4),
+        0 0 60px rgba(236, 72, 153, 0.3) !important;
+}
+
+.fade-in {
+    animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== LAYOUT ===== */
+#app {
+    min-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+}
+
+.main-container {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 2rem !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .planet {
+        display: none !important;
+    }
+
+    .astronaut {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .nebula {
+        filter: blur(60px) !important;
+        opacity: 0.15 !important;
+    }
+
+    .glass-card {
+        padding: 1.5rem !important;
+    }
+}

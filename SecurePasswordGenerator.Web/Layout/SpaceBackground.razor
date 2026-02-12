@@ -1,0 +1,106 @@
+@* 
+    PROFESSIONAL SPACE BACKGROUND COMPONENT
+    Ultra Premium Uzay Temalı Arka Plan
+*@
+
+<div class="space-background">
+    @* Yıldız Katmanları (3 Layer) *@
+    <div class="stars layer-1"></div>
+    <div class="stars layer-2"></div>
+    <div class="stars layer-3"></div>
+    
+    @* Nebula Efektleri (4 Layer - Professional) *@
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+    <div class="nebula nebula-4"></div>
+    
+    @* Gezegenler (3D Style) *@
+    <div class="planet planet-1">
+        <div class="planet-ring"></div>
+    </div>
+    <div class="planet planet-2"></div>
+    <div class="planet planet-3"></div>
+    
+    @* Kayan Yıldızlar (5 adet) *@
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    
+    @* Astronot (Enhanced SVG) *@
+    <div class="astronaut">
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            @* Glow Effect *@
+            <defs>
+                <radialGradient id="astronautGlow">
+                    <stop offset="0%" stop-color="#a855f7" stop-opacity="0.8"/>
+                    <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                </radialGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+            
+            @* Outer Glow *@
+            <circle cx="60" cy="60" r="50" fill="url(#astronautGlow)" opacity="0.4"/>
+            
+            @* Helmet *@
+            <circle cx="60" cy="40" r="22" fill="#e0e7ff" opacity="0.95" filter="url(#glow)"/>
+            <circle cx="60" cy="40" r="24" fill="none" stroke="#a855f7" stroke-width="2.5" opacity="0.6"/>
+            
+            @* Visor (Glass) *@
+            <ellipse cx="60" cy="40" rx="15" ry="12" fill="#3b82f6" opacity="0.4"/>
+            <ellipse cx="60" cy="38" rx="13" ry="10" fill="#60a5fa" opacity="0.2"/>
+            
+            @* Eyes *@
+            <circle cx="54" cy="38" r="2.5" fill="#1e3a8a"/>
+            <circle cx="66" cy="38" r="2.5" fill="#1e3a8a"/>
+            <circle cx="55" cy="37" r="1" fill="#ffffff"/>
+            <circle cx="67" cy="37" r="1" fill="#ffffff"/>
+            
+            @* Smile *@
+            <path d="M 52 43 Q 60 47 68 43" stroke="#1e3a8a" stroke-width="2" fill="none" stroke-linecap="round"/>
+            
+            @* Body (Suit) *@
+            <rect x="42" y="58" width="36" height="42" rx="6" fill="#e0e7ff" opacity="0.95" filter="url(#glow)"/>
+            <rect x="42" y="58" width="36" height="42" rx="6" fill="none" stroke="#a855f7" stroke-width="2" opacity="0.5"/>
+            
+            @* Chest Panel *@
+            <rect x="50" y="68" width="20" height="16" rx="3" fill="#ec4899" opacity="0.7"/>
+            <circle cx="60" cy="76" r="4" fill="#fbbf24" opacity="0.9"/>
+            <circle cx="60" cy="76" r="2" fill="#ffffff" opacity="0.8"/>
+            
+            @* Control Buttons *@
+            <circle cx="54" cy="90" r="2" fill="#3b82f6" opacity="0.8"/>
+            <circle cx="60" cy="90" r="2" fill="#10b981" opacity="0.8"/>
+            <circle cx="66" cy="90" r="2" fill="#ef4444" opacity="0.8"/>
+            
+            @* Arms *@
+            <rect x="28" y="62" width="14" height="26" rx="7" fill="#e0e7ff" opacity="0.9"/>
+            <rect x="78" y="62" width="14" height="26" rx="7" fill="#e0e7ff" opacity="0.9"/>
+            <circle cx="35" cy="88" r="6" fill="#d4d4d8" opacity="0.9"/>
+            <circle cx="85" cy="88" r="6" fill="#d4d4d8" opacity="0.9"/>
+            
+            @* Legs *@
+            <rect x="46" y="98" width="12" height="18" rx="4" fill="#e0e7ff" opacity="0.9"/>
+            <rect x="62" y="98" width="12" height="18" rx="4" fill="#e0e7ff" opacity="0.9"/>
+            <rect x="46" y="114" width="12" height="6" rx="3" fill="#52525b" opacity="0.9"/>
+            <rect x="62" y="114" width="12" height="6" rx="3" fill="#52525b" opacity="0.9"/>
+            
+            @* Antenna *@
+            <line x1="60" y1="18" x2="60" y2="12" stroke="#a855f7" stroke-width="2"/>
+            <circle cx="60" cy="10" r="3" fill="#ec4899" opacity="0.9"/>
+            <circle cx="60" cy="10" r="5" fill="none" stroke="#ec4899" stroke-width="1" opacity="0.5"/>
+        </svg>
+    </div>
+</div>
+
+@code {
+    // Pure visual component - no code needed
+}

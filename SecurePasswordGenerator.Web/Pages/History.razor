@@ -1,0 +1,401 @@
+@page "/history"
+@using SecurePasswordGenerator.Domain.Interfaces
+@using SecurePasswordGenerator.Domain.Models
+@using Microsoft.JSInterop
+@inject IPasswordHistoryService HistoryService
+@inject IClipboardService ClipboardService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Şifre Geçmişi - Secure Password Generator</PageTitle>
+
+<div class="main-container">
+    <div class="glass-card" style="max-width: 1400px; margin: 0 auto;">
+        
+        @* HEADER *@
+        <div style="margin-bottom: 2rem;">
+            <h1 class="text-gradient glow-text" style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                📜 Şifre Geçmişi
+            </h1>
+            <p style="color: rgba(255,255,255,0.7); font-size: 1.125rem;">
+                Kaydedilmiş şifrelerinizi yönetin, arayın ve filtreleyin
+            </p>
+        </div>
+
+        @* STATISTICS *@
+        @if (statistics != null)
+        {
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                <div style="background: rgba(168,85,247,0.1); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(168,85,247,0.2);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #a855f7;">@statistics.TotalPasswords</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.875rem;">Toplam Şifre</div>
+                </div>
+                <div style="background: rgba(236,72,153,0.1); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(236,72,153,0.2);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #ec4899;">@statistics.FavoriteCount</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.875rem;">Favoriler</div>
+                </div>
+                <div style="background: rgba(59,130,246,0.1); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(59,130,246,0.2);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #3b82f6;">@statistics.TotalCopyCount</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.875rem;">Toplam Kopyalama</div>
+                </div>
+                <div style="background: rgba(16,185,129,0.1); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(16,185,129,0.2);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #10b981;">@FormatBytes(statistics.StorageSizeBytes)</div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 0.875rem;">Depolama</div>
+                </div>
+            </div>
+        }
+
+        @* SEARCH & FILTERS *@
+        <div style="margin-bottom: 2rem;">
+            <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; margin-bottom: 1rem;">
+                <input type="text" 
+                       class="input" 
+                       placeholder="🔍 Ara (etiket, label, şifre)..." 
+                       @bind="searchQuery"
+                       @bind:event="oninput"
+                       @bind:after="ApplyFilters"
+                       style="flex: 1;" />
+                
+                <select class="input" value="@selectedStrengthFilter" @onchange="OnStrengthFilterChanged" style="width: 200px;">
+                    <option value="">Tüm Güçler</option>
+                    <option value="VeryWeak">Çok Zayıf</option>
+                    <option value="Weak">Zayıf</option>
+                    <option value="Moderate">Orta</option>
+                    <option value="Strong">Güçlü</option>
+                    <option value="VeryStrong">Çok Güçlü</option>
+                </select>
+
+                <button class="btn btn-secondary" @onclick="ToggleViewMode" style="width: 150px;">
+                    @(viewMode == ViewMode.Grid ? "📋 Liste" : "🎨 Grid")
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn @(showFavoritesOnly ? "btn-primary" : "btn-secondary")" 
+                        @onclick="ToggleFavoritesFilter"
+                        style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                    ⭐ @(showFavoritesOnly ? "Tüm Şifreler" : "Sadece Favoriler")
+                </button>
+                
+                @if (filteredPasswords.Count > 0)
+                {
+                    <button class="btn btn-secondary" 
+                            @onclick="ClearAllPasswords"
+                            style="padding: 0.5rem 1rem; font-size: 0.875rem; background: rgba(239,68,68,0.1) !important; border-color: rgba(239,68,68,0.3) !important;">
+                        🗑️ Tümünü Sil
+                    </button>
+                }
+            </div>
+        </div>
+
+        @* LOADING *@
+        @if (isLoading)
+        {
+            <div style="text-align: center; padding: 4rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⏳</div>
+                <div style="color: rgba(255,255,255,0.7);">Yükleniyor...</div>
+            </div>
+        }
+        @* EMPTY STATE *@
+        else if (filteredPasswords.Count == 0)
+        {
+            <div style="text-align: center; padding: 4rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;">📭</div>
+                <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 0.5rem;">Henüz kayıtlı şifre yok</h3>
+                <p style="color: rgba(255,255,255,0.6);">Ana sayfadan şifre oluşturup kaydedin</p>
+                <a href="/" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-block;">
+                    ✨ Şifre Oluştur
+                </a>
+            </div>
+        }
+        @* PASSWORD LIST *@
+        else
+        {
+            <div style="@(viewMode == ViewMode.Grid ? "display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1rem;" : "display: flex; flex-direction: column; gap: 1rem;")">
+                @foreach (var password in filteredPasswords)
+                {
+                    <div class="password-card" style="background: rgba(15,10,30,0.4); border: 1px solid rgba(168,85,247,0.2); border-radius: 16px; padding: 1.5rem; transition: all 0.3s;">
+                        @* HEADER *@
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div style="flex: 1;">
+                                @if (!string.IsNullOrEmpty(password.Label))
+                                {
+                                    <h4 style="color: #fff; font-size: 1.125rem; margin-bottom: 0.25rem;">@password.Label</h4>
+                                }
+                                <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
+                                    @password.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")
+                                </div>
+                            </div>
+                            <button @onclick="() => ToggleFavorite(password.Id)" 
+                                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.25rem;">
+                                @(password.IsFavorite ? "⭐" : "☆")
+                            </button>
+                        </div>
+
+                        @* PASSWORD *@
+                        <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; font-family: 'JetBrains Mono', monospace; word-break: break-all;">
+                            <div style="color: #a855f7; font-size: 1.125rem; font-weight: 600;">
+                                @(showPasswordId == password.Id ? password.Password : new string('•', password.Length))
+                            </div>
+                        </div>
+
+                        @* STRENGTH *@
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span style="font-size: 0.875rem; color: rgba(255,255,255,0.7);">Güç:</span>
+                                <span style="font-weight: 600; color: @GetStrengthColor(password.StrengthLevel);">
+                                    @GetStrengthText(password.StrengthLevel)
+                                </span>
+                            </div>
+                            <div style="height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; overflow: hidden;">
+                                <div style="height: 100%; background: @GetStrengthColor(password.StrengthLevel); width: @GetStrengthPercentage(password.StrengthLevel)%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+
+                        @* TAGS *@
+                        @if (password.Tags.Any())
+                        {
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                @foreach (var tag in password.Tags)
+                                {
+                                    <span style="background: rgba(168,85,247,0.2); color: #a855f7; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
+                                        #@tag
+                                    </span>
+                                }
+                            </div>
+                        }
+
+                        @* STATS *@
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.6);">
+                            <div>📏 @password.Length kar.</div>
+                            <div>📊 @password.Entropy.ToString("F1") bit</div>
+                            <div>📋 @password.CopyCount kez</div>
+                        </div>
+
+                        @* ACTIONS *@
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-primary" 
+                                    @onclick="() => CopyPassword(password)"
+                                    style="flex: 1; padding: 0.625rem; font-size: 0.875rem;">
+                                📋 Kopyala
+                            </button>
+                            <button class="btn btn-secondary" 
+                                    @onclick="() => TogglePasswordVisibility(password.Id)"
+                                    style="padding: 0.625rem 1rem; font-size: 0.875rem;">
+                                @(showPasswordId == password.Id ? "👁️" : "👁️‍🗨️")
+                            </button>
+                            <button class="btn btn-secondary" 
+                                    @onclick="() => DeletePassword(password.Id)"
+                                    style="padding: 0.625rem 1rem; font-size: 0.875rem; background: rgba(239,68,68,0.1) !important; border-color: rgba(239,68,68,0.3) !important;">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @* MESSAGE *@
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div style="margin-top: 1.5rem; padding: 1rem; background: @(isError ? "rgba(239,68,68,0.1)" : "rgba(16,185,129,0.1)"); border: 1px solid @(isError ? "rgba(239,68,68,0.3)" : "rgba(16,185,129,0.3)"); border-radius: 12px; color: @(isError ? "#ef4444" : "#10b981");">
+                @message
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<PasswordHistory> allPasswords = new();
+    private List<PasswordHistory> filteredPasswords = new();
+    private PasswordHistoryStatistics? statistics;
+    
+    private string searchQuery = string.Empty;
+    private string selectedStrengthFilter = string.Empty;
+    private bool showFavoritesOnly = false;
+    private ViewMode viewMode = ViewMode.Grid;
+    private Guid? showPasswordId = null;
+    
+    private bool isLoading = true;
+    private string message = string.Empty;
+    private bool isError = false;
+
+    private enum ViewMode { Grid, List }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPasswords();
+    }
+
+    private async Task LoadPasswords()
+    {
+        isLoading = true;
+        try
+        {
+            allPasswords = await HistoryService.GetAllPasswordsAsync();
+            statistics = await HistoryService.GetStatisticsAsync();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Hata: {ex.Message}", true);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        filteredPasswords = allPasswords;
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            var query = searchQuery.ToLowerInvariant();
+            filteredPasswords = filteredPasswords.Where(p =>
+                (p.Label?.ToLowerInvariant().Contains(query) ?? false) ||
+                p.Tags.Any(t => t.ToLowerInvariant().Contains(query)) ||
+                p.Password.Contains(searchQuery)
+            ).ToList();
+        }
+
+        // Strength filter
+        if (!string.IsNullOrEmpty(selectedStrengthFilter) && Enum.TryParse<PasswordStrengthLevel>(selectedStrengthFilter, out var level))
+        {
+            filteredPasswords = filteredPasswords.Where(p => p.StrengthLevel == level).ToList();
+        }
+
+        // Favorites filter
+        if (showFavoritesOnly)
+        {
+            filteredPasswords = filteredPasswords.Where(p => p.IsFavorite).ToList();
+        }
+
+        // Sort by date (newest first)
+        filteredPasswords = filteredPasswords.OrderByDescending(p => p.CreatedAt).ToList();
+    }
+
+    private void OnStrengthFilterChanged(ChangeEventArgs e)
+    {
+        selectedStrengthFilter = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void ToggleFavoritesFilter()
+    {
+        showFavoritesOnly = !showFavoritesOnly;
+        ApplyFilters();
+    }
+
+    private void ToggleViewMode()
+    {
+        viewMode = viewMode == ViewMode.Grid ? ViewMode.List : ViewMode.Grid;
+    }
+
+    private void TogglePasswordVisibility(Guid id)
+    {
+        showPasswordId = showPasswordId == id ? null : id;
+    }
+
+    private async Task ToggleFavorite(Guid id)
+    {
+        var success = await HistoryService.ToggleFavoriteAsync(id);
+        if (success)
+        {
+            await LoadPasswords();
+            ShowMessage("Favori durumu güncellendi", false);
+        }
+    }
+
+    private async Task CopyPassword(PasswordHistory password)
+    {
+        try
+        {
+            await ClipboardService.CopyWithAutoClearAsync(password.Password, 30);
+            await HistoryService.RecordAccessAsync(password.Id);
+            await LoadPasswords();
+            ShowMessage("✅ Şifre kopyalandı! 30 saniye sonra otomatik temizlenecek.", false);
+        }
+        catch (Exception ex)
+        {
+            ShowMessage($"Kopyalama hatası: {ex.Message}", true);
+        }
+    }
+
+    private async Task DeletePassword(Guid id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Bu şifreyi silmek istediğinizden emin misiniz?"))
+        {
+            var success = await HistoryService.DeletePasswordAsync(id);
+            if (success)
+            {
+                await LoadPasswords();
+                ShowMessage("Şifre silindi", false);
+            }
+        }
+    }
+
+    private async Task ClearAllPasswords()
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "TÜM şifreleri silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!"))
+        {
+            var success = await HistoryService.DeleteAllPasswordsAsync();
+            if (success)
+            {
+                await LoadPasswords();
+                ShowMessage("Tüm şifreler silindi", false);
+            }
+        }
+    }
+
+    private void ShowMessage(string msg, bool error)
+    {
+        message = msg;
+        isError = error;
+        StateHasChanged();
+        
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            message = string.Empty;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private string GetStrengthColor(PasswordStrengthLevel level) => level switch
+    {
+        PasswordStrengthLevel.VeryWeak => "#ef4444",
+        PasswordStrengthLevel.Weak => "#f97316",
+        PasswordStrengthLevel.Moderate => "#eab308",
+        PasswordStrengthLevel.Strong => "#22c55e",
+        PasswordStrengthLevel.VeryStrong => "#10b981",
+        _ => "#6b7280"
+    };
+
+    private string GetStrengthText(PasswordStrengthLevel level) => level switch
+    {
+        PasswordStrengthLevel.VeryWeak => "Çok Zayıf",
+        PasswordStrengthLevel.Weak => "Zayıf",
+        PasswordStrengthLevel.Moderate => "Orta",
+        PasswordStrengthLevel.Strong => "Güçlü",
+        PasswordStrengthLevel.VeryStrong => "Çok Güçlü",
+        _ => "Bilinmiyor"
+    };
+
+    private int GetStrengthPercentage(PasswordStrengthLevel level) => level switch
+    {
+        PasswordStrengthLevel.VeryWeak => 20,
+        PasswordStrengthLevel.Weak => 40,
+        PasswordStrengthLevel.Moderate => 60,
+        PasswordStrengthLevel.Strong => 80,
+        PasswordStrengthLevel.VeryStrong => 100,
+        _ => 0
+    };
+
+    private string FormatBytes(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F1} KB";
+        return $"{bytes / (1024.0 * 1024.0):F1} MB";
+    }
+}
